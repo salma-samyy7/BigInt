@@ -182,40 +182,39 @@ BigInt operator%(BigInt lhs, const BigInt& rhs) { // --marwan--
 
 // Equality comparison operator (x == y)
 bool operator==(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    return (lhs.isNegative == rhs.isNegative && lhs.number == rhs.number);
 }
-
 // Inequality comparison operator (x != y)
 bool operator!=(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    return !(lhs == rhs);
 }
-
 // Less-than comparison operator (x < y)
 bool operator<(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    if (lhs.isNegative != rhs.isNegative)
+        return lhs.isNegative;
+    if (!lhs.isNegative) {
+        if (lhs.number.size() != rhs.number.size())
+            return lhs.number.size() < rhs.number.size();
+        return lhs.number < rhs.number;
+    }
+    else {
+        if (lhs.number.size() != rhs.number.size())
+            return lhs.number.size() > rhs.number.size();
+        return lhs.number > rhs.number;
+    }
 }
-
 // Less-than-or-equal comparison operator (x <= y)
 bool operator<=(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    return (lhs < rhs || lhs == rhs);
 }
-
 // Greater-than comparison operator (x > y)
 bool operator>(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    return !(lhs <= rhs);
 }
-
 // Greater-than-or-equal comparison operator (x >= y)
 bool operator>=(const BigInt& lhs, const BigInt& rhs) { // --habiba--
-    // TODO: Implement this operator
-    return false;
+    return !(lhs < rhs);
 }
-
 int main() {
     cout << "=== BigInt Class Test Program ===" << endl << endl;
     cout << "NOTE: All functions are currently empty." << endl;

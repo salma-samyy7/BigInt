@@ -80,7 +80,6 @@ public:
         isNegative = (value < 0 ? true : false);
         long long n;
         if(isNegative){
-            number += "-";
             n = -value;
         }
         else
@@ -110,6 +109,9 @@ public:
         // TODO: Implement this constructor
         number = str;
         isNegative = (str[0] == '-' ? true : false);
+        if(isNegative){
+            number.erase(number.begin());
+        }
     }
 
     // Copy constructor
@@ -117,6 +119,9 @@ public:
         // TODO: Implement this constructor
         number = other.number;
         isNegative = other.isNegative;
+        if(isNegative){
+            number.erase(number.begin());
+        }
     }
 
     // Destructor

@@ -119,9 +119,6 @@ public:
         // TODO: Implement this constructor
         number = other.number;
         isNegative = other.isNegative;
-        if(isNegative){
-            number.erase(number.begin());
-        }
     }
 
     // Destructor
@@ -171,9 +168,6 @@ public:
     
     string a = number;
     string b = other.number;
-
-    if (a[0] == '-') a.erase(a.begin());
-    if (b[0] == '-') b.erase(b.begin());
     reverse(a.begin(),a.end());
     reverse(b.begin(),b.end());
     int n =a.length();
@@ -198,11 +192,8 @@ public:
     }
     if (number != "0") {
     isNegative = resultNegative;
-    if (isNegative) {
-        number = "-" + number;
-    }
-    }else {
-        isNegative = false;
+    }else{
+        isNegative=false;
     }
         return *this;
     }
@@ -216,8 +207,6 @@ public:
 
     string a = number;
     string b = other.number;
-    if (a[0] == '-') a.erase(a.begin());
-    if (b[0] == '-') b.erase(b.begin());
 
     BigInt dividend(a);
     dividend.isNegative = false;  
@@ -256,11 +245,8 @@ public:
     number = result;
     if (number != "0") {
         isNegative = resultNegative;
-        if (isNegative) {
-            number = "-" + number;
-        }
-    }else {
-        isNegative = false;
+    }else{
+        isNegative=false;
     }
     return *this;
     }
@@ -310,14 +296,21 @@ public:
 
     // Convert BigInt to string representation
     string toString() const { // --omar--
-        // TODO: Implement this function
+        if(isNegative){
+            return"-"+ number;
+        }else{
         return number;
+        }
     }
 
     // Output stream operator (for printing)
     friend ostream& operator<<(ostream& os, const BigInt& num) { // --george--
-        // TODO: Implement this operator
-        return os;
+        if(num.isNegative) {
+            os<<"-"+num.number;
+        }else{
+            os<<num.number;
+        }
+            return os;
     }
 
     // Input stream operator (for reading from input)
@@ -419,19 +412,19 @@ int main() {
     BigInt b("-67890");           // Should create BigInt from string
     BigInt c("0");                // Should handle zero correctly
     BigInt d = a;                 // Should use copy constructor
-    cout << "a (from int): " << a.toString() << endl;        // Should print "12345"
-    cout << "b (from string): " << b.toString() << endl;     // Should print "-67890"
-    cout << "c (zero): " << c.toString() << endl;            // Should print "0"
-    cout << "d (copy of a): " << d.toString() << endl << endl; // Should print "12345"
-    /*
+    cout << "a (from int): " << a << endl;        // Should print "12345"
+    cout << "b (from string): " << b << endl;     // Should print "-67890"
+    cout << "c (zero): " << c << endl;            // Should print "0"
+    cout << "d (copy of a): " << d << endl << endl; // Should print "12345"
+    
     // Test 2: Arithmetic operations
     cout << "2. Arithmetic operations:" << endl;
-    cout << "a + b = " << a + b << endl;          // Should calculate 12345 + (-67890)
-    cout << "a - b = " << a - b << endl;          // Should calculate 12345 - (-67890)
+    //cout << "a + b = " << a + b << endl;          // Should calculate 12345 + (-67890)
+    //cout << "a - b = " << a - b << endl;          // Should calculate 12345 - (-67890)
     cout << "a * b = " << a * b << endl;          // Should calculate 12345 * (-67890)
     cout << "b / a = " << b / a << endl;          // Should calculate (-67890) / 12345
     cout << "a % 100 = " << a % BigInt(100) << endl << endl; // Should calculate 12345 % 100
-
+    /*
     // Test 3: Relational operators
     cout << "3. Relational operators:" << endl;
     cout << "a == d: " << (a == d) << endl;       // Should be true (12345 == 12345)

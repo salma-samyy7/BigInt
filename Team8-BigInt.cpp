@@ -2,6 +2,8 @@
 #include <string>
 #include <cmath>
 #include <stdexcept>  // for runtime_error
+#include <algorithm> //included this for std::reverse()
+#include <vector>  
 
 using namespace std;
 
@@ -78,7 +80,6 @@ public:
         isNegative = (value < 0 ? true : false);
         long long n;
         if(isNegative){
-            number += "-";
             n = -value;
         }
         else
@@ -108,6 +109,9 @@ public:
         // TODO: Implement this constructor
         number = str;
         isNegative = (str[0] == '-' ? true : false);
+        if(isNegative){
+            number.erase(number.begin());
+        }
     }
 
     // Copy constructor
@@ -159,20 +163,108 @@ public:
     }
 
     // Multiplication assignment operator (x *= y)
-    BigInt& operator*=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+    BigInt& operator*=(BigInt other) { // --marwan--
+    bool resultNegative= (isNegative != other.isNegative);
+    
+    string a = number;
+    string b = other.number;
+    reverse(a.begin(),a.end());
+    reverse(b.begin(),b.end());
+    int n =a.length();
+    int m =b.length();
+    vector<int>k(n+m);
+    for(int i =0;i<n;i++){
+        for(int j=0;j<m;j++){
+            k[i+j]+=(a[i]-'0')*(b[j]-'0');
+        }
+    }
+    for (int i = 0; i < (int)k.size(); i++) {
+        if (k[i] >= 10) {
+            k[i + 1] += k[i] / 10;
+            k[i] %= 10;
+        }
+    }
+    while (k.size() > 1 && k.back() == 0)
+        k.pop_back();
+    number.clear();
+    for (int i = k.size() - 1; i >= 0; i--) {
+        number.push_back(k[i] + '0');
+    }
+    if (number != "0") {
+    isNegative = resultNegative;
+    }else{
+        isNegative=false;
+    }
         return *this;
     }
 
     // Division assignment operator (x /= y)
     BigInt& operator/=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+    if (other.number == "0")throw runtime_error("Division by zero is undefined"); 
+    if (number == "0") return *this; 
+
+    bool resultNegative = (isNegative != other.isNegative);
+
+    string a = number;
+    string b = other.number;
+
+    BigInt dividend(a);
+    dividend.isNegative = false;  
+    BigInt divisor(b);
+    divisor.isNegative = false;   
+
+    if (dividend.compareMagnitude(divisor) < 0) {
+        number = "0";
+        isNegative = false;
         return *this;
+    }else if (dividend.compareMagnitude(divisor) == 0) {
+        number = "1";
+        isNegative = resultNegative;
+        return *this;
+    }
+    string result = "";
+    BigInt current("0");
+    //long division
+    for (int i = 0; i < a.length(); i++) {
+        current.number += a[i];
+
+        while (current.number.size() > 1 && current.number[0] == '0') {
+            current.number.erase(current.number.begin());
+        }
+        int count = 0;
+        while (current.compareMagnitude(divisor) >= 0) {
+            current -= divisor;
+            count++;
+        }
+        
+        result += to_string(count);
+    }
+    while (result.size() > 1 && result[0] == '0') {
+        result.erase(result.begin());
+    }
+    number = result;
+    if (number != "0") {
+        isNegative = resultNegative;
+    }else{
+        isNegative=false;
+    }
+    return *this;
     }
 
     // Modulus assignment operator (x %= y)
     BigInt& operator%=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+        if(other.number=="0") throw runtime_error("Modulo by zero is undefined");
+        if(number=="0") return *this;
+        //modulo formula is a%b=a-(a/b*b)
+        bool originalSign=isNegative;
+        BigInt a(*this);
+        BigInt b(other);
+        *this -= (a/b)*b;
+        if(number!="0"){
+            isNegative=originalSign;
+        }else { 
+            isNegative=false;
+        }
         return *this;
     }
 
@@ -204,14 +296,21 @@ public:
 
     // Convert BigInt to string representation
     string toString() const { // --omar--
-        // TODO: Implement this function
+        if(isNegative){
+            return"-"+ number;
+        }else{
         return number;
+        }
     }
 
     // Output stream operator (for printing)
     friend ostream& operator<<(ostream& os, const BigInt& num) { // --george--
-        // TODO: Implement this operator
-        return os;
+        if(num.isNegative) {
+            os<<"-"+num.number;
+        }else{
+            os<<num.number;
+        }
+            return os;
     }
 
     // Input stream operator (for reading from input)
@@ -223,6 +322,11 @@ public:
     // Friend declarations for comparison operators
     friend bool operator==(const BigInt& lhs, const BigInt& rhs);
     friend bool operator<(const BigInt& lhs, const BigInt& rhs);
+    friend BigInt operator+(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator-(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator*(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator/(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator%(BigInt lhs, const BigInt& rhs);
 };
 
 // Binary addition operator (x + y)
@@ -241,22 +345,22 @@ BigInt operator-(BigInt lhs, const BigInt& rhs) { // --salma--
 
 // Binary multiplication operator (x * y)
 BigInt operator*(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result*=rhs;
     return result;
 }
 
 // Binary division operator (x / y)
 BigInt operator/(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result/=rhs;
     return result;
 }
 
 // Binary modulus operator (x % y)
 BigInt operator%(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result %=rhs;
     return result;
 }
 
@@ -307,19 +411,19 @@ int main() {
     BigInt b("-67890");           // Should create BigInt from string
     BigInt c("0");                // Should handle zero correctly
     BigInt d = a;                 // Should use copy constructor
-    cout << "a (from int): " << a.toString() << endl;        // Should print "12345"
-    cout << "b (from string): " << b.toString() << endl;     // Should print "-67890"
-    cout << "c (zero): " << c.toString() << endl;            // Should print "0"
-    cout << "d (copy of a): " << d.toString() << endl << endl; // Should print "12345"
-    /*
+    cout << "a (from int): " << a << endl;        // Should print "12345"
+    cout << "b (from string): " << b << endl;     // Should print "-67890"
+    cout << "c (zero): " << c << endl;            // Should print "0"
+    cout << "d (copy of a): " << d << endl << endl; // Should print "12345"
+    
     // Test 2: Arithmetic operations
     cout << "2. Arithmetic operations:" << endl;
-    cout << "a + b = " << a + b << endl;          // Should calculate 12345 + (-67890)
-    cout << "a - b = " << a - b << endl;          // Should calculate 12345 - (-67890)
+    //cout << "a + b = " << a + b << endl;          // Should calculate 12345 + (-67890)
+    //cout << "a - b = " << a - b << endl;          // Should calculate 12345 - (-67890)
     cout << "a * b = " << a * b << endl;          // Should calculate 12345 * (-67890)
     cout << "b / a = " << b / a << endl;          // Should calculate (-67890) / 12345
     cout << "a % 100 = " << a % BigInt(100) << endl << endl; // Should calculate 12345 % 100
-
+    /*
     // Test 3: Relational operators
     cout << "3. Relational operators:" << endl;
     cout << "a == d: " << (a == d) << endl;       // Should be true (12345 == 12345)

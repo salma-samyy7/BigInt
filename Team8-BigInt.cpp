@@ -2,6 +2,8 @@
 #include <string>
 #include <cmath>
 #include <stdexcept>  // for runtime_error
+#include <algorithm> //included this for std::reverse()
+#include <vector>  
 
 using namespace std;
 
@@ -159,20 +161,119 @@ public:
     }
 
     // Multiplication assignment operator (x *= y)
-    BigInt& operator*=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+    BigInt& operator*=(BigInt other) { // --marwan--
+    bool resultNegative= (isNegative != other.isNegative);
+    
+    string a = number;
+    string b = other.number;
+
+    if (a[0] == '-') a.erase(a.begin());
+    if (b[0] == '-') b.erase(b.begin());
+    reverse(a.begin(),a.end());
+    reverse(b.begin(),b.end());
+    int n =a.length();
+    int m =b.length();
+    vector<int>k(n+m);
+    for(int i =0;i<n;i++){
+        for(int j=0;j<m;j++){
+            k[i+j]+=(a[i]-'0')*(b[j]-'0');
+        }
+    }
+    for (int i = 0; i < (int)k.size(); i++) {
+        if (k[i] >= 10) {
+            k[i + 1] += k[i] / 10;
+            k[i] %= 10;
+        }
+    }
+    while (k.size() > 1 && k.back() == 0)
+        k.pop_back();
+    number.clear();
+    for (int i = k.size() - 1; i >= 0; i--) {
+        number.push_back(k[i] + '0');
+    }
+    if (number != "0") {
+    isNegative = resultNegative;
+    if (isNegative) {
+        number = "-" + number;
+    }
+    }else {
+        isNegative = false;
+    }
         return *this;
     }
 
     // Division assignment operator (x /= y)
     BigInt& operator/=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+    if (other.number == "0")throw runtime_error("Division by zero is undefined"); 
+    if (number == "0") return *this; 
+
+    bool resultNegative = (isNegative != other.isNegative);
+
+    string a = number;
+    string b = other.number;
+    if (a[0] == '-') a.erase(a.begin());
+    if (b[0] == '-') b.erase(b.begin());
+
+    BigInt dividend(a);
+    dividend.isNegative = false;  
+    BigInt divisor(b);
+    divisor.isNegative = false;   
+
+    if (dividend.compareMagnitude(divisor) < 0) {
+        number = "0";
+        isNegative = false;
         return *this;
+    }else if (dividend.compareMagnitude(divisor) == 0) {
+        number = "1";
+        isNegative = resultNegative;
+        return *this;
+    }
+    string result = "";
+    BigInt current("0");
+    //long division
+    for (int i = 0; i < a.length(); i++) {
+        current.number += a[i];
+
+        while (current.number.size() > 1 && current.number[0] == '0') {
+            current.number.erase(current.number.begin());
+        }
+        int count = 0;
+        while (current.compareMagnitude(divisor) >= 0) {
+            current -= divisor;
+            count++;
+        }
+        
+        result += to_string(count);
+    }
+    while (result.size() > 1 && result[0] == '0') {
+        result.erase(result.begin());
+    }
+    number = result;
+    if (number != "0") {
+        isNegative = resultNegative;
+        if (isNegative) {
+            number = "-" + number;
+        }
+    }else {
+        isNegative = false;
+    }
+    return *this;
     }
 
     // Modulus assignment operator (x %= y)
     BigInt& operator%=(const BigInt& other) { // --marwan--
-        // TODO: Implement this operator
+        if(other.number=="0") throw runtime_error("Modulo by zero is undefined");
+        if(number=="0") return *this;
+        //modulo formula is a%b=a-(a/b*b)
+        bool originalSign=isNegative;
+        BigInt a(*this);
+        BigInt b(other);
+        *this -= (a/b)*b;
+        if(number!="0"){
+            isNegative=originalSign;
+        }else { 
+            isNegative=false;
+        }
         return *this;
     }
 
@@ -223,6 +324,11 @@ public:
     // Friend declarations for comparison operators
     friend bool operator==(const BigInt& lhs, const BigInt& rhs);
     friend bool operator<(const BigInt& lhs, const BigInt& rhs);
+    friend BigInt operator+(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator-(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator*(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator/(BigInt lhs, const BigInt& rhs);
+    friend BigInt operator%(BigInt lhs, const BigInt& rhs);
 };
 
 // Binary addition operator (x + y)
@@ -241,22 +347,22 @@ BigInt operator-(BigInt lhs, const BigInt& rhs) { // --salma--
 
 // Binary multiplication operator (x * y)
 BigInt operator*(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result*=rhs;
     return result;
 }
 
 // Binary division operator (x / y)
 BigInt operator/(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result/=rhs;
     return result;
 }
 
 // Binary modulus operator (x % y)
 BigInt operator%(BigInt lhs, const BigInt& rhs) { // --marwan--
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result %=rhs;
     return result;
 }
 

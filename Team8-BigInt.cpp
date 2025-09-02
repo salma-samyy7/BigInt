@@ -26,28 +26,41 @@ class BigInt
     // Returns: 1 if |this| > |other|, 0 if equal, -1 if |this| < |other|
     int compareMagnitude(const BigInt &other) const
     { // --omar--
-        // TODO: Implement this function
-        string s = other.number;
-        if (s[0] == '-')
-            s.erase(s.begin());
-        if (number.length() > s.length())
+        string s1 = number, s2 = other.number;
+        if(s1[0] == '-'){
+            s1.erase(s1.begin());
+        }
+        while (s1[0] == '0' && s1.size() > 1)
+        {
+            s1.erase(s1.begin());
+        }
+
+        if(s2[0] == '-'){
+            s2.erase(s2.begin());
+        }
+        while (s2[0] == '0' && s2.size() > 1)
+        {
+            s2.erase(s2.begin());
+        }
+
+        if (s1.length() > s2.length())
         {
             return 1;
         }
-        else if (number.length() < s.length())
+        else if (s1.length() < s2.length())
         {
             return -1;
         }
         else
         {
             int i = 0;
-            while (i < number.length())
+            while (i < s1.length())
             {
-                if (number[i] > s[i])
+                if (s1[i] > s2[i])
                 {
                     return 1;
                 }
-                else if (number[i] < s[i])
+                else if (s1[i] < s2[i])
                 {
                     return -1;
                 }
@@ -231,6 +244,7 @@ public:
         {
             number.erase(number.begin());
         }
+        this->removeLeadingZeros();
     }
 
     // Copy constructor
@@ -618,7 +632,7 @@ int main()
     // Test 1: Constructors and basic output
     cout << "1. Constructors and output:" << endl;
     BigInt a(12345);                          // Should create BigInt from integer
-    BigInt b("-67890");                       // Should create BigInt from string
+    BigInt b("-000000067890");                       // Should create BigInt from string
     BigInt c("0");                            // Should handle zero correctly
     BigInt d = a;                             // Should use copy constructor
     cout << "a (from int): " << a << endl;    // Should print "12345"
@@ -626,6 +640,7 @@ int main()
     cout << "c (zero): " << c << endl;        // Should print "0"
     cout << "d (copy of a): " << d << endl
          << endl; // Should print "12345"
+
 
     // Test 2: Arithmetic operations
     cout << "2. Arithmetic operations:" << endl;
@@ -637,7 +652,7 @@ int main()
          << endl; // Should calculate 12345 % 100
 
          
-    
+
     // Test 3: Relational operators
     cout << "3. Relational operators:" << endl;
     cout << "a == d: " << (a == d) << endl;       // Should be true (12345 == 12345)
